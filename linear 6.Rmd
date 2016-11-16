@@ -1,0 +1,166 @@
+---
+title: "Linear 6"
+author: "Tonghao Zhang"
+date: "2016/11/2"
+output: pdf_document
+---
+
+##6.25
+
+The analyst can modify the $Y_i$ by deducing the $X_{i2}$ component: $Y_i^* = Y_i - \beta_2X_{i2}$. Then fit $Y_i^*$ with covariates $X_1,\ X_{3}$ will yield desiring result.
+
+##6.26
+
+Simple regression $\hat{Y}$ on Y will yield the exact set of coefficient H, for there exist only one unique least square solution. To be specific, we are looking for $c_0,\ c_1$ such that $\sum (c_0 + c_1\hat{Y_i} - Y_i)^2$ is minimized. As $\hat{Y_i} = b_0 + b_1X_{1i} + ... + b_pX_{pi}$, the criterion is to minimize $\sum (c_0 + c_1b_0 + c_1b_1X_{1i} + ... +c_1b_pX_{pi})^2$. This is still a least square solution of $X_i$ on Y, the uniqueness of least square ensures $c_0 = 0,\ c_1 = 1$, so the regression fit is identical to that of $X_i$ and Y. Now that the fitted values are the same, SSE is the same, so will be $R^2$.  
+
+##6.27
+
+```{r, echo=FALSE}
+X1<-c(7,4,16,3,21,8)
+X2<-c(33,41,7,49,5,31)
+Y<-c(42,33,75,28,91,55)
+data6.27<-data.frame(Y=Y,X1=X1,X2=X2)
+lm6.27<-lm(Y~X1+X2,data = data6.27)
+X<-t(rbind(rep(1,6),X1,X2))
+Xt<-t(X)
+```
+
+- b: [$b_0$,$b_1$,$b_2$] = [33.932, 2.784, -0.264]
+- e: [-2.700, -1.230, -1.637, -1.330, -0.090, 6.987]
+- H: 
+
+```{r,echo=FALSE}
+out<-X%*%solve(Xt%*%X)%*%Xt
+colnames(out)<-NULL;rownames(out)<-NULL
+out
+```
+
+- SSR: 3009.92
+- $s^2\{b\}$:
+```{r,echo=FALSE}
+20.69*solve(Xt%*%X)
+```
+
+- $\hat{Y_h}$ = 53.847
+- $s^2\{\hat{Y_h}\}$ = 5.424
+
+##7.1
+
+- $SSR(X_1|X_2)$ df = 1
+- $SSR(X_2|X_1,X_3)$ df = 1
+- $SSR(X_1,X_2|X_3,X_4)$ df = 2
+- $SSR(X_1,X_2,X_3|X_4,X_5)$ df = 3
+
+##7.3
+
+```{r,include=TRUE}
+data7.3<-read.table("CH06PR05.txt",header=FALSE)
+colnames(data7.3)<-c("Y","X1","X2")
+lm7.3<-lm(Y~X1+X2,data = data7.3)
+anova(lm7.3)
+```
+
+####a)
+
+$SSR(X_1) = 1566.45$, $SSR(X_2|X_1) = 306.25$.
+
+####b)
+
+$H_0 : \beta_2 = 0$, $H_A : \beta_2 \neq 0$
+
+decision rule: if $F^* > F(0.99;1,13)$, reject $H_0$.
+
+$F^* = \frac{306.25}{7.25}$, while threshold = `r qf(0.99,1,13)`, reject $H_0$. The p-value is $`r 1-pf(306.25/7.25,1,13)`$.
+
+##7.6
+
+```{r,echo=FALSE}
+data7.6<-read.table("CH06PR15.txt",header = FALSE)
+colnames(data7.6)<-c("Y","X1","X2","X3")
+lm7.6<-lm(Y~X1+X2+X3,data=data7.6)
+anova(lm7.6)
+```
+
+####a)
+
+$SSR(X_2,X_3|X_1) = 480.9+364.2$
+
+$H_0 : \beta_2 = \beta_3 = 0$, $H_A$: at least one $\beta_i \neq 0$.
+
+decision rule: if $F^* > F(0.975:2,42)$, reject $H_0$. 
+
+$F^* = \frac{\frac{480.9+364.2}{2}}{101.2} = 4.175$, while the threshold $F(0.975;2,42)$ = `r qf(0.975,2,42)`, reject $H_0$. p-value is $`r 1-pf((480.9+364.2)/(2*101.2),2,42)`$.
+
+##7.11
+
+```{r, echo=FALSE}
+data7.11<-read.table("CH07TA06.txt",header=FALSE)
+colnames(data7.11)<-c("X1","X2","Y")
+lm1<-lm(Y~X1,data=data7.11)
+lm2<-lm(Y~X2,data=data7.11)
+lm12<-lm(X2~X1,data=data7.11)
+lmfull12<-lm(Y~X1+X2,data = data7.11)
+lmfull21<-lm(Y~X2+X1,data=data7.11)
+```
+
+####a)
+
+- $R^2_{Y1} = \frac{SSR(X_1)}{SSTO} = 0.550$, it measures the usefulness of fitting $X_1$ to Y in linear regression model. Here 0.550 is far from 1, the fit is not very useful.
+
+- $R^2_{Y2} = \frac{SSR(X_2)}{SSTO} = 0.409$, it measures the usefulness of fitting $X_2$ to Y in linear regression model. Here 0.409 means this model is not very useful.
+
+- $R^2_{12} = \frac{SSR(X_1)}{SSE(X_2)} = 0$, it measures the correlation of $X_1$ and $X_2$. 0 basicly says there is no correlation between $X_1$ and $X_2$.
+
+- $R^2_{Y1|2} = \frac{SSR(X_1|X_2)}{SSE(X_2)} = 0.930$, it measures the effectiveness of adding $X_1$ into linear regression model given $X_2$ is already in the model. 0.930 indicates it's very effective.
+
+- $R^2_{Y2|1} = \frac{SSR(X_2|X_1)}{SSE(X_1)} = 0.907$, it measures the effectiveness of adding $X_2$ into linear regression model given $X_1$ is already in the model. 0.907 indicates it's very effective.
+
+####b)
+
+Because the two variable are uncorrelated. $R^2_{12} = 0$. Furthermore the extra sum of variance explain by adding new variable is the same regardless of $X_1,\ X_2$ sequence.
+
+##Problem 9
+
+```{r,include=FALSE}
+Y<-c(2.3,2.8,3.8,2.7,6.1,8.7)
+X<-c(-1,-3/5,-1/5,1/5,3/5,1)
+data9<-data.frame(Y=Y,X=X)
+```
+
+####part A
+
+Just plug $X = X^*C^t$ into $X^tY = X^tX\hat{\beta}$, $C{X^*}^tY = C{X^*}^tX^*C^t\hat{\beta}$, cancel C on both side yield the desire result ${X^*}^tY = {X^*}^tX^*\hat{\beta^*}$.
+
+####part B
+
+```{r, include=FALSE}
+x1<-c(-5,-3,-1,1,3,5)
+x2<-c(5,-1,-4,-4,-1,5)
+x3<-c(-5,7,4,-4,-7,5)
+X<-t(rbind(rep(1,6),x1,x2,x3))
+Xt<-t(X)
+C<-matrix(c(1,0,0,0,0,5,0,0,-35/8,0,75/8,0,0,-505/24,0,625/24),byrow=T,ncol=4)
+```
+
+```{r, include=TRUE}
+Xt%*%X
+round(solve(Xt%*%X),3)
+round(solve(Xt%*%X)%*%Xt%*%Y,3)
+round(t(C)%*%(solve(Xt%*%X)%*%Xt%*%Y),3)
+```
+
+#### part C
+```{r,echo=FALSE,fig.height=4,fig.width=6}
+lm9<-lm(Y~X+I(X^2)+I(X^3),data=data9)
+datanew<-data.frame(X=seq(-1,1,length.out = 100))
+datanew$Y<-predict(lm9,datanew)
+library(ggplot2)
+Y<-c(2.3,2.8,3.8,2.7,6.1,8.7)
+X<-c(-1,-3/5,-1/5,1/5,3/5,1)
+data9<-data.frame(Y=Y,X=X)
+g<-ggplot(data=data9,aes(x=X,y=Y))+geom_point()
+g+geom_line(data=datanew)
+
+
+
+```

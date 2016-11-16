@@ -1,0 +1,157 @@
+---
+title: "Linear"
+output: pdf_document
+---
+##Ex4.5
+
+```{r 4.5a,include=TRUE}
+data4.5<-read.table("CH01PR22.txt",header = FALSE);colnames(data4.5)<-c("Y","X")
+lm4.5<-lm(Y~X,data = data4.5)
+confint(lm4.5,level=0.95)
+```
+
+**a)** The Bonferroni joint confidence interval for $\beta_0$ and $\beta_1$ is [162.9013,174.29875] and [1.8405,2.22825]. According to Bonferroni procedure, the family confidence coefficient is at least 0.90.
+
+**b)** According to the statement (4.5) in the textbook, $\sigma(b_0,b_1) = -\overset{-}{X} \sigma^2(b_1)$, as the mean of X is positve, $b_0$ and $b_1$ is negatively correlated.
+
+**c)** We have at least 0.90 confidence that both conclusion for $\beta_0$ and $\beta_0$ are correct when each confidence intervals are as given in a).
+
+##Ex4.10
+
+```{r 4.10,include=TRUE}
+data4.10<-read.table("CH01PR27.txt",header=FALSE);colnames(data4.10)<-c("Y","X")
+lm4.10<-lm(Y~X,data = data4.10)
+newdata<-data.frame(X=c(45,55,65))
+std4.10<-predict(lm4.10,newdata,se.fit=TRUE,interval="confidence")
+W<-sqrt(2*pf(0.95,2,58))
+CI4.10L<-std4.10$fit[,1]-W*std4.10$se.fit
+CI4.10U<-std4.10$fit[,1]+W*std4.10$se.fit
+CI4.10L;CI4.10U
+```
+
+**a)** From Working-Hotelling procedure, the interval for age = 45, 55, 65 are [100.90711, 104.68642], [89.63280, 92.16082], [77.73154, 80.26217].
+
+**b)** Let's calculate the Bonferroni joint confidence interval.
+```{r 4.10b,include=TRUE}
+predict(lm4.10,newdata,interval="confidence",level = (1-0.05/3))
+```
+
+In comparison, Working Hotelling is the better one here.
+
+**c)** The joint confidence interval level is 0.98333. By Bonferroni method, the point estimates and confidence intervals for age 48, 59, 74 are 
+
+99.22678, [78.73541, 11971815]
+
+86.13683, [65.81829, 106.45537]
+
+68.28690, [47.73184, 88.84195]
+
+```{r 4.10c,include=TRUE}
+newdata<-data.frame(X=c(48,59,74))
+predict(lm4.10,newdata,interval = "prediction",level = (1-0.05/3))
+```
+
+**d)** The joint intervals have to be re-calculated, for the change in number of intervals will affect confidence level in Bonferroni method. Scheffe method will also need modification, according to statement (4.8), $S^2 =  gF(1-\alpha; g, n-2)$, where g is the number of points. Here g changed from 3 to 4, so Scheffe also need modification.
+
+##Ex4.16
+
+```{r 4.16,include=TRUE}
+data4.16<-read.table("CH01PR20.txt",header=FALSE);colnames(data4.16)<-c("Y","X")
+lm4.16<-lm(Y~ -1 + X,data=data4.16)
+```
+
+**a)** The estimated regression function is Y = `r lm4.16$coefficients`X.
+
+```{r 4.16b, include=TRUE}
+confint(lm4.16,"X",level=0.9)
+```
+**b)** The 0.90 confidence interval for b is [14.56678, 15.32767].
+
+```{r 4.16c,include=TRUE}
+newdata<-data.frame(X=c(6))
+predict(lm4.16,newdata,interval="prediction",level=0.9)
+```
+**c)** The point estimate is 89.68338, the confidence interval is [74.69559,104.6712].
+
+##Ex4.20
+
+```{r 4.20,include=TRUE}
+Xnew<-(238-lm4.5$coefficients[1])/lm4.5$coefficients[2]
+ANOVA<-anova(lm4.5)
+```
+
+**a)** The 0.99 confidence interval for elapsed time is [30.84652,37.38082].  
+
+```{r 4.20b,include=TRUE}
+ANOVA<-anova(lm4.5)
+numerator<-qt(0.995,43)^2*ANOVA$`Mean Sq`[2]
+denu<-ANOVA$`Sum Sq`[1]
+numerator/denu
+```
+
+**b)** The criterion(4.33) has a value of `r numerator/denu`, so our prediction on elapsed time is appropriate.
+
+##Ex5.7
+
+```{r 5.7,include=TRUE}
+data5.7<-read.table("CH01PR22.txt",header=FALSE);colnames(data5.7)<-c("Y","X")
+sum(data5.7$Y^2)
+```
+
+**a)** $Y^tY$ = 819499.
+
+```{r 5.7b,include=TRUE}
+X<-cbind(rep(1,16),data5.7$X)
+t(X)%*%X
+t(X)%*%data5.7$Y
+```
+
+**b)** $X^tX$ = $\begin{pmatrix}
+                  16 & 448\\
+                  448 & 13824
+                \end{pmatrix}$
+                
+**c)** $X^tY$ = $\begin{pmatrix}
+                  3609\\
+                  103656
+                \end{pmatrix}$
+
+##Ex5.26
+
+```{r 5.26, include=TRUE}
+solve(t(X)%*%X)
+lm5.26<-lm(Y~X,data=data5.7)
+```
+**a)** 
+
+- (1) $(X^tX)^{-1}$ = $\begin{pmatrix}
+                              0.675000 & -0.02187500\\
+                              -0.021875 & 0.00078125
+                              \end{pmatrix}$
+- (2) b = $\begin{pmatrix}
+                168.6\\
+                2.03
+          \end{pmatrix}$
+- (3) $\hat{Y}^t$ = [`r lm5.26$residuals`] 
+
+- (4) H
+
+```{r, include=TRUE}
+X%*%solve(t(X)%*%X)%*%t(X)
+```
+
+- (5) SSE = `r anova(lm5.26)$'Sum Sq'[2]`.
+
+```{r,include=TRUE}
+solve(t(X)%*%X)*anova(lm5.26)$'Mean Sq'[2]
+```
+- (6) $s^2(b)$ = $\begin{pmatrix}
+                              7.0597768 & -0.228789063\\
+                              -0.2287891 & 0.008171038
+                              \end{pmatrix}$
+```{r}
+newdata<-data.frame(X=c(30))
+predict(lm5.26,newdata,se.fit = TRUE,interval = "prediction")$se.fit^2
+```
+- (7) $s^2(predict)$ when $X_h$ = 30 is 0.6863672.
+            
