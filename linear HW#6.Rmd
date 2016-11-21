@@ -13,33 +13,30 @@ There is one possible explaination of this phenanimon, multicolinearity among th
 
 ####a)
 
-```{r}
+```{r,echo=FALSE}
 data7.24<-read.table("CH06PR05.txt")
 colnames(data7.24)<-c("Y","X1","X2")
 lm7.24a<-lm(Y~X1,data=data7.24)
-lm7.24a
 ```
 
 Y = 50.775 + 4.425 $X_1$
 
 ####b)
 
-```{r}
+```{r,echo=FALSE}
 lm6.5<-lm(Y~X2+X1,data=data7.24)
-lm6.5
-cor(data7.24$X1,data7.24$X2)
 ```
 
-The coefficent  $\beta_1$ from part a is identical to that of 6.5.
+Y = 37.650 + 4.375$X_2$ + 4.425$X_1$. The coefficent  $\beta_1$ from part a is identical to that of 6.5.
 
 ####c)
 
-```{r}
-anova(lm7.24a)
-anova(lm6.5)
+```{r,echo=FALSE}
+#anova(lm7.24a)
+#anova(lm6.5)
 ```
 
-Yes, SSR($X_1$) equals to SSR($X_1|X_2$).
+Yes, SSR($X_1$) = 1566.45, equals to SSR($X_1|X_2$) = 1566.45.
 
 ####d)
 
@@ -48,63 +45,55 @@ The correlation between $X1$ and $X_2$ is 0, so the infomation in these two vari
 ##Problem 3
 
 ####a)
-```{r}
+```{r,echo=FALSE,fig.height=2.6}
 strength<-c(17.8,18.2,16.9,21.4,20.1,22.3,30.6,32.1,31.0,6.5,5.2,5.9,10.4,11.7,12.6,14.6,14.3,15.9)
 A<-c(1,1,1,2,2,2,3,3,3,1,1,1,2,2,2,3,3,3)
 B<-c(rep(1,9),rep(2,9))
 group<-c(1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6)
 data3<-data.frame(strength=strength,group=group,A=A,B=B)
 lm3.a<-lm(strength~as.factor(group),data=data3)
-lm3.a
 library(ggplot2)
 muB1<-c(17.633,17.633+3.633,17.633+13.600)
 muB2<-c(17.633-11.767,17.633-6.067,17.633-2.7)
-index<-c(1,2,3)
-data3.plot<-data.frame(muB1=muB1,muB2=muB2,index=index)
-ggplot(data3.plot,aes(x=index,y=muB1))+geom_point()
-ggplot(data3.plot,aes(x=index,y=muB2))+geom_point()
+index<-c(1,2,3,1,2,3)
+group<-c(1,1,1,2,2,2)
+data3.plot<-data.frame(mu=c(muB1,muB2),index=index)
+ggplot(data3.plot,aes(x=factor(index),y=mu,colour=factor(group)))+geom_point()
 ```
 
 $\beta_0$ = 17.633, $\beta_1$ = 3.633, $\beta_2$ = 13.600, $\beta_3$ = -11.767, $\beta_4$ = -6.067, $\beta_5$ = -2.700.
 
 ####b)
 
-```{r}
+```{r,echo=FALSE,fig.height=3}
 lm3.b<-lm(strength~A+as.factor(B),data=data3)
-lm3.b
-data3.plot$muB1<-c(12.044+5.667,12.044+5.667*2,12.044+5.667*3)
-data3.plot$muB2<-c(12.044+5.667,12.044+5.667*2,12.044+5.667*3)-12.589
-ggplot(data3.plot,aes(x=index,y=muB1))+geom_point()
-ggplot(data3.plot,aes(x=index,y=muB2))+geom_point()
+data3.plot$mu<-c(12.044+5.667,12.044+5.667*2,12.044+5.667*3,c(12.044+5.667,12.044+5.667*2,12.044+5.667*3)-12.589)
+ggplot(data3.plot,aes(x=factor(index),y=mu,colour=factor(group)))+geom_point()
 ```
 
 ####c)
 
-```{r}
+```{r,echo=FALSE,fig.height=3}
 lm3.c<-lm(strength~as.factor(A)+B,data = data3)
-lm3.c
-data3.plot$muB1<-c(30.633,30.633+4.667,30.633+11.333)
-data3.plot$muB2<-c(30.633,30.633+4.667,30.633+11.333)-12.589
-ggplot(data3.plot,aes(x=index,y=muB1))+geom_point()
-ggplot(data3.plot,aes(x=index,y=muB2))+geom_point()
+data3.plot$mu<-c(30.633,30.633+4.667,30.633+11.333,c(30.633,30.633+4.667,30.633+11.333)-12.589)
+ggplot(data3.plot,aes(x=index,y=mu,colour=factor(group)))+geom_point()
 ```
 
 
 ##8.6
 
-```{r}
+####a)
+```{r,echo=FALSE,fig.height=3}
 data8.6<-read.table("CH08PR06.txt")
 colnames(data8.6)<-c("Y","X")
 data8.6$Xstar<-data8.6$X-mean(data8.6$X)
 lm8.6a<-lm(Y~Xstar+I(Xstar^2),data=data8.6)
-lm8.6a
 xmin<-min(data8.6$Xstar)
 xmax<-max(data8.6$Xstar)
 predicted<-data.frame(Xstar=seq(xmin,xmax,length.out=100))
 predicted$Y<-predict(lm8.6a,predicted)
 g<-ggplot(data8.6,aes(x=Xstar,y=Y))+geom_point()
 g+geom_line(data=predicted)
-anova(lm8.6a)
 ```
 
 The plot indicates it's a good fit.
@@ -113,9 +102,8 @@ $R^2 = \frac{SSR}{SSTO} = \frac{793.28+252.99}{793.28+252.99+238.54}$ = 0.814
 
 ####b)
 
-```{r}
+```{r,echo=FALSE}
 lm8.6b<-lm(Y~as.factor(Xstar),data=data8.6)
-anova(lm8.6a,lm8.6b)
 ```
 
 Lack of fit test here, $H_0$ : there is such a regression relationship, $H_A$: no such regression relationship.
@@ -124,41 +112,44 @@ p-value = 0.8758, reject $H_0$.
 
 ####c)
 
-```{r}
+```{r,echo=FALSE}
 new<-data.frame(Xstar=c(10,15,20)-mean(data8.6$X))
 CI<-predict(lm8.6a,new,se.fit = TRUE,interval = "confidence",level = 1-0.01/6)
-CI
+#CI
 W<-sqrt(3*qf(0.99,3,24))
-c(CI$fit[,1]-W*CI$se.fit,CI$fit[,1]+W*CI$se.fit)
+#c(CI$fit[,1]-W*CI$se.fit,CI$fit[,1]+W*CI$se.fit)
 ```
+
+Bonferroni method: [7.299373,13.84104], [16.977130,23.29872], [20.749504,26.82165].
+
+Working-hotelling [7.094528,14.045886], [16.779176,23.496670], [20.559362,27.011792].
 
 Confidence interval from Bonferroni method is better. The possiblity of all mean at 10, 15, 20 to fall into confidence interval above simutaneously is more than 99%.
 
 ####d)
 
-```{r}
+```{r,echo=FALSE}
 new<-data.frame(Xstar=15-mean(data8.6$X))
 CI<-predict(lm8.6a,new,se.fit = TRUE,interval = "prediction",level=0.99)
-CI
+#CI
 ```
+
+Point estimate 20.13792, confidence interval [10.97342,29.30242]
 
 When sample a new female with steriod level of 15, the possiblity of the outcome to fall into confidence level above is more than 99%.
 
 ####e)
 
-```{r}
-anova(lm8.6a)
+```{r,echo=FALSE}
+#anova(lm8.6a)
 ```
 
 Full model: $Y$ ~ $X+X^2$, reduced model: $Y$ ~ $X$.
 
 F statistic is 25.453, following F(1,24) distribution the p-value is almost 0. Conclude $H_0$.
 
-```{r}
+```{r,echo=FALSE}
 lm8.6f<-lm(Y~X+I(X^2),data=data8.6)
-lm8.6f
-lm8.6a
-mean(data8.6$X)
 ```
 
 $b_0$ = -26.325, $b_1$ = 4.8736, $b_2$ = -0.1184
@@ -167,7 +158,26 @@ $b_0$ = -26.325, $b_1$ = 4.8736, $b_2$ = -0.1184
 
 ####a)
 
+```{r,echo=FALSE,fig.height=3}
+library(gridExtra)
+library(ggplot2)
+p1<-ggplot(,aes(x=x2,y=y))+geom_abline(slope = 1,intercept = 21)+ylim(0,50)+xlim(0,50)
+p2<-ggplot(,aes(x=x2,y=y))+geom_abline(slope = -11, intercept = 42)+ylim(0,50)+xlim(0,50)
+grid.arrange(p1,p2,ncol=2)
+```
 
+The effect of $X_1$ on mean response depend on $X_2$, so this model is not additive.
+
+####b)
+
+```{r,echo=FALSE,fig.height=5}
+x1<-seq(0,4,length.out = 50)
+x2<-seq(0,4,length.out = 50)
+y<-14+7*x1+5*x2-4*x1%*%t(x2)
+contour(x1,x2,y,xlab="x1",ylab="x2")
+```
+
+In additive model, the contours should be straight lines. So this model is not an additive one.
 
 
 
